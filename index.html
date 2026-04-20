@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Love Quiz 💖</title>
+
+<style>
+*{box-sizing:border-box;}
+body{
+    margin:0;
+    font-family: Arial;
+    overflow:hidden;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#ffe4ec,#ffd6e7);
+}
+
+/* intro */
+#intro{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:url('https://i.imgur.com/8Km9tLL.jpg') center/cover;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    color:white;
+    z-index:10;
+    animation:fade 1s;
+}
+
+#intro button{
+    padding:15px 25px;
+    border:none;
+    border-radius:15px;
+    font-size:18px;
+    background:#ff6fa5;
+    color:white;
+}
+
+/* layout */
+.wrap{
+    display:none;
+    gap:20px;
+    align-items:center;
+}
+
+/* character */
+.character{
+    width:110px;
+    position:relative;
+}
+.character img{
+    width:100%;
+    border-radius:20px;
+}
+
+/* hint bubble */
+.bubble{
+    position:absolute;
+    top:-50px;
+    left:0;
+    background:white;
+    color:black;
+    padding:6px 10px;
+    border-radius:10px;
+    font-size:12px;
+    display:none;
+}
+
+/* card */
+.card{
+    width:320px;
+    background:rgba(255,255,255,0.85);
+    padding:20px;
+    border-radius:20px;
+    text-align:center;
+}
+
+/* button */
+button{
+    width:100%;
+    margin:6px 0;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+}
+
+/* letter */
+#letter{
+    display:none;
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:black;
+    color:white;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+}
+
+/* fade */
+.fade{
+    animation:fade 0.5s;
+}
+@keyframes fade{
+    from{opacity:0;transform:translateY(10px);}
+    to{opacity:1;}
+}
+
+/* particles */
+.particle{
+    position:absolute;
+    top:-10px;
+    animation:fall linear;
+}
+@keyframes fall{
+    to{transform:translateY(100vh);}
+}
+</style>
+</head>
+
+<body>
+
+<!-- INTRO -->
+<div id="intro">
+    <h1>💖 LOVE QUIZ 💖</h1>
+    <button onclick="start()">Bắt đầu</button>
+</div>
+
+<!-- GAME -->
+<div class="wrap" id="game">
+
+<div class="character">
+    <div class="bubble" id="bubble"></div>
+    <img src="https://i.imgur.com/3ZQ3ZQW.png">
+    <button onclick="hint()">💡 Gợi ý</button>
+    <button onclick="toggleMusic()">🎵</button>
+</div>
+
+<div class="card fade">
+    <h2 id="q"></h2>
+    <div id="ans"></div>
+</div>
+
+</div>
+
+<!-- LETTER -->
+<div id="letter">
+    <div onclick="openLetter()" style="border:2px solid white;padding:20px;border-radius:10px">
+        💌 Tap để mở
+    </div>
+    <h1 id="msg" style="display:none">💖 vk anh bá nhất tgioi !!! 💖</h1>
+</div>
+
+<script>
+
+// 🎵 SOUND
+const bg = new Audio("https://www.bensound.com/bensound-music/bensound-love.mp3");
+const click = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
+const end = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+
+bg.loop=true;
+bg.volume=0.4;
+
+// 📊 DATA
+const quiz=[
+{q:"Họ thích làm gì lúc rảnh?",a:["Nghe nhạc","Chơi game","Xem phim","Lướt mạng"],h:"Xem story 📱"},
+{q:"Gu nhạc của họ?",a:["Ballad","Rap","Lofi","EDM"],h:"Caption buồn 😏"},
+{q:"Họ thích gì?",a:["Mèo","Chó","Cả hai"],h:"Avatar 🐱"},
+{q:"Họ thích đi đâu?",a:["Ở nhà","Cafe","Du lịch"],h:"Check-in 📍"},
+{q:"Gu ăn uống?",a:["Ngọt","Mặn","Ăn vặt"],h:"Story đồ ăn 🍜"}
+];
+
+let i=0;
+
+// 🚀 START
+function start(){
+    document.getElementById("intro").style.display="none";
+    document.getElementById("game").style.display="flex";
+    bg.play();
+    load();
+}
+
+// 🔄 LOAD
+function load(){
+    if(i>=quiz.length){
+        end.play();
+        setTimeout(()=>{
+            document.getElementById("letter").style.display="flex";
+            heartEffect();
+        },1000);
+        return;
+    }
+
+    changeBG(i);
+
+    let q=quiz[i];
+    document.getElementById("q").innerText=q.q;
+
+    let box=document.getElementById("ans");
+    box.innerHTML="";
+    box.classList.add("fade");
+
+    q.a.forEach(x=>{
+        let b=document.createElement("button");
+        b.innerText=x;
+
+        b.onclick=()=>{
+            click.play();
+            i++;
+            load();
+        };
+
+        box.appendChild(b);
+    });
+}
+
+// 💡 HINT
+function hint(){
+    let b=document.getElementById("bubble");
+    b.innerText=quiz[i].h;
+    b.style.display="block";
+    setTimeout(()=>b.style.display="none",2000);
+}
+
+// 🎵 TOGGLE MUSIC
+function toggleMusic(){
+    if(bg.paused) bg.play();
+    else bg.pause();
+}
+
+// 💌 LETTER
+function openLetter(){
+    document.querySelector("#letter div").style.display="none";
+    document.getElementById("msg").style.display="block";
+}
+
+// 🎨 BACKGROUND CHANGE
+function changeBG(i){
+    const bgList=[
+        "#ffe4ec","#ffd6f0","#d6f0ff","#fff0d6","#ffd6d6","#e0d6ff"
+    ];
+    document.body.style.background=bgList[i%bgList.length];
+}
+
+// ❄️ SNOW
+setInterval(()=>{
+    let s=document.createElement("div");
+    s.className="particle";
+    s.innerText="❄";
+    s.style.left=Math.random()*100+"%";
+    s.style.animationDuration=(3+Math.random()*3)+"s";
+
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),6000);
+},200);
+
+// 💖 HEART EFFECT
+function heartEffect(){
+    setInterval(()=>{
+        let h=document.createElement("div");
+        h.className="particle";
+        h.innerText="💖";
+        h.style.left=Math.random()*100+"%";
+        h.style.animationDuration=(3+Math.random()*3)+"s";
+
+        document.body.appendChild(h);
+        setTimeout(()=>h.remove(),6000);
+    },200);
+}
+
+</script>
+
+</body>
+      </html>
